@@ -1,0 +1,158 @@
+#+STARTUP: hidestars
+#+STARTUP: showall
+
+* Guide to code and analysis
+
+Welcome to the code repository and user guide for the paper (Leung et al., 2019). 
+
+Title: Neural signatures of sleep in zebrafish.
+
+Authors: Louis C. Leung, Gordon X. Wang, Romain Madelaine, Gemini Skariah, Koichi Kawakami, Karl Deisseroth, Alexander E. Urban & Philippe Mourrain.
+
+The accompanying paper is published here:
+
+Link: https://www.nature.com/articles/s41586-019-1336-7
+
+DOI: https://doi.org/10.1038/s41586-019-1336-7
+
+License: Open Source MIT license.
+
+Please note: the following code has only been validated to work on a Windows 7 machine with MatLab (v2013b and 2016b, Mathworks).
+
+* Ca2+ imaging
+** Dorsal Pallium (DP) imaging
+1 or 2 channel DP imaging can be processed using Matlab (MathWorks) with singleChannelCaGUI.m or doubleChannelCaGUI.m, respectively, followed by plotting with plotCaImaging.m (OPTIONAL).
+  - Set paths - add 'fPSG' and 'Downloads' folder.
+*** Single channel GCaMP imaging
+#+BEGIN_EXAMPLE
+  singleChannelCaGUI()
+#+END_EXAMPLE
+  - Choose folder with GCaMP images in numerical order (.tifs).
+  - Select if you want motion correction (optional) or make sure you provide motion-corrected images in a folder named 'motionCorrected' (Fiji's moco plugin also works well).
+  - Select whether you want to crop the region from which you select ROI masks (default: no).
+  - Trace the neurons (Wacom tablet recommended), selecting 'Yes' to continue to select more, 'no' to finish or 'undo' if you mess up or 2 ROIs are too close to each other (at least one pixel gap is required between ROIs to be separated).
+  - Choose 'ring' or 'region' mask type when prompted.
+  - Select to sort the ROIs activities by 'Mean', 'Median' or 'Mode' or 'Leave unsorted' (default).  This option is useful to configure presentation of the heatmap in plotCaImaging.m. 
+  - Select 'fPSG' output config to output some plots (not exhaustive).
+    - Enter imaging framerate (e.g. 1-2Hz), and basic formatting settings.
+  - Edit plotCaImaging.m to customise the plots to your experiment.
+  - Check the 'Analysis' folder in your current working directory for outputs.
+
+*** Dual channel GCaMP and nuclear mCherry imaging
+#+BEGIN_EXAMPLE
+doubleChannelCaGUI()
+#+END_EXAMPLE
+  - Choose folder with nuclei images in numerical order (.tifs)
+  - Choose folder with GCaMP images in numerical order (.tifs)
+  - Select if you want motion correction (optional) or make sure you provide motion-corrected images in a folder named 'motionCorrected' (Fiji's moco plugin also works well).
+  - Select whether you want to crop the region from which you select ROI masks (default no).
+  - Trace the nuclei (Wacom tablet recommended), selecting Yes to continue to select more, no to finish or undo if you mess up or 2 ROIs are too close to each other. (at least one pixel gap is required between ROIs to be separated).
+  - Select to sort the ROIs activities by 'Mean', 'Median' or 'Mode' or 'Leave unsorted' (default).  This option is useful to configure presentation of the heatmap in plotCaImaging.m. 
+  - Select 'fPSG' output config to output some plots (not exhaustive).
+    - Enter imaging framerate (e.g. 1-2Hz), and basic formatting settings.
+  - Edit plotCaImaging.m to customise the plots to your experiment.
+  - Check the 'Analysis' folder in your current working directory for outputs.
+
+** Fluorescent Polysomnography (fPSG)
+fEEG, fEMG and fECG can be processed using Matlab with singleChannelCaGUI.m producing plots with plotCaImaging.m or plotECG.m respectively.
+*** Single channel Ca2+ imaging of brain (fEEG) and muscle (fEMG)
+#+BEGIN_EXAMPLE
+  singleChannelCaGUI()
+#+END_EXAMPLE
+  - Choose folder with GCaMP images (single plane or max projection of volume) in numerical order (.tifs).
+  - Select if you want motion correction (optional) or make sure you provide motion-corrected images in a folder named 'motionCorrected' (Fiji's moco plugin also works well).
+  - Select whether you want to crop the region from which you select ROI masks (default no).
+  - Trace the regions - brain or muscle (Wacom tablet recommended), selecting 'Yes' to continue to select more, 'no' to finish or 'undo' if you mess up or 2 ROIs are too close to each other. (at least one pixel gap is required between ROIs to be separated).
+  - Choose 'region' mask type when prompted.
+  - Select 'Leave unsorted' when prompted.
+  - Select 'fPSG' output config to output some plots (not exhaustive).
+    - Enter imaging framerate (typically 1-2Hz), and basic formatting settings.
+  - Edit plotCaImaging.m to customise the plots to your experiment.
+  - Check the 'Analysis' folder in your current working directory for outputs.
+
+*** Single channel GFP imaging of heart (fECG)
+fECG can be processed using Matlab with singleChannelCaGUI.m and running peakAnalysis from plotECG.m
+#+BEGIN_EXAMPLE
+  singleChannelCaGUI()
+#+END_EXAMPLE
+  - Choose folder with GFP images (.tifs).
+  - Select if you want motion correction (optional) or make sure you provide motion-corrected images in a folder named 'motionCorrected' (Fiji's moco plugin also works well).
+  - Select whether you want to crop the region from which you select ROI masks (default: no).
+  - Trace a single heart chamber (Wacom tablet recommended), selecting 'no' to finish.
+  - Choose 'region' mask type when prompted.
+  - Select 'Leave unsorted' when prompted.
+  - Select 'fECG heartrate' when prompted to output some plots (not exhaustive).
+    - Enter imaging framerate (typically 10Hz), and basic formatting settings.
+  - Edit plotECG.m to customise the plots to your experiment.
+  - Check the 'Analysis' folder in your current working directory for outputs.
+**** Coefficient of variation
+  - To calculate coefficient of variation:
+    - Import Analysis > fECG.mat into Matlab and run this command:
+      #+BEGIN_SRC matlab
+         std(diff(locs))/mean(diff(locs))
+      #+END_SRC
+** Miscellaneous
+   - Image flickering artefacts can be corrected with the following function:
+   #+BEGIN_EXAMPLE
+     deflicker()
+   #+END_EXAMPLE
+   - Convert .tif images to .eps format:
+   #+BEGIN_EXAMPLE
+     tifftoepsConversion()
+   #+END_EXAMPLE
+
+* Actimetry
+Actimetry was performed with zebraLab (Viewpoint Life Sciences) which produced .xls files. Note: this currently works for 24 well plates where each 6-well-row is a different condition, but should be straightforward to extend to any number of wells as well as other experimental configurations.  Convert the .xls to .xlsx before running the following Matlab script: vpextract.m.
+- set paths - add 'Actimetry' and 'Downloads' folder.
+*** Extracting and plotting Viewpoint rawdata
+#+BEGIN_EXAMPLE
+  vpextract()
+#+END_EXAMPLE
+  - Choose .xlsx file.
+  - Select whether analysing '24hr sleep/wake' or '3hr drug' experiment.
+    - Row 1 L->R is 1-6.
+    - Row 2 L->R is 7-12.
+    - Row 3 L->R is 13-18.
+    - Row 4 L->R is 19-24.
+  - Select parameters for plots then click 'OK'.
+    - Select if you want totals for activity and sleep by day/night.
+    - Select the experiment mode that was run.
+      - experiment mode 0 - A single well requires evaluation.
+      - experiment mode 1 - Plate (OBSELETE).
+      - experiment mode 2 - Rows 1 and 3 versus Rows 2 and 4 (2 conditions where Rows 1 and 3 are controls and 2 and 4 are treatments).
+      - experiment mode 3 - Rows 1 versus 2 and Rows 3 versus 4 (4 conditions where Row 1 is control for Row 2 treatment and Row 3 is control for Row 4 treatment).
+      - experiment mode 4 - Rows 1 versus 2, 3, and 4 (4 conditions where Row 1 is control and 2, 3 and 4 are different treatment conditions).
+    - Do you want to export movies of the actimetry? (See below, default: 0 - no).
+    - Edit row condition labels as appropriate.
+    - Select whether timepoints where treatments are performed that significantly affect actimetry can be removed (default: 0 - no).
+    - Select whether 60 second period of day->night or night->day transition is removed (default: 1 - yes).
+    - Select for 'sleep/wake matrix', which is a well by well presentation of activity and sleep traces (default: 1 - yes). 
+    - Select wells to exclude if fish died during experiment (default: 0 - no) - if yes (enter 1), enter space separated numbers in the following popup and click 'OK'.
+  - Check the 'Summary' folder for outputs.
+
+*** Editing and converting Viewpoint xvid AVIs
+  - To create movies of the whole dish or selected wells, you need to have the xvid avi movie files with original viewpoint naming scheme (..._c001_000x.avi) in the same folder as your .xls file. This feature can be selected for as an option from vpextract.m menu or run as a standalone function:
+#+BEGIN_EXAMPLE
+  viewpointMovieFullOneMovie()
+#+END_EXAMPLE
+    - Select if you want a movie of the whole plate (0) or only a specific well (1-24).
+    - Select if you want 'MPEG-4' or 'AVI' or 'Uncompressed' export.
+    - Select output fps (typical 30fps).
+    - Select how many input frames to skip for each output frame.
+    - Select what portion from each viewpoint submovie do you want present in the final movie (0) all or 1min (1800 at 30fps).
+    - Check the 'Exported_movies' folder for outputs.
+    - NOTE: gstreamer tools are required for VideoReader functions to work in MatLab on Mac or Linux.
+
+** Miscellaneous
+ - Functions to convert avi -> mp4 formats and vice versa are also available:
+  #+BEGIN_EXAMPLE
+    avitomp4Convert()
+    mp4toaviConvert()
+  #+END_EXAMPLE
+
+* Arduino
+This script was used for producing randomised tapping for Wake Maintenance (WM). Find the Arduino IDE here to upload to the board (https://www.arduino.cc/en/Main/Software)
+- Wake_Maintenance.ino
+
+* Fiji
+Helper functions used with Fiji/ImageJ for processing images and producing AVIs from timelapse imaging. 
